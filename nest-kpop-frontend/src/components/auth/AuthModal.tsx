@@ -15,12 +15,14 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultMode?: "login" | "signup";
+  onSuccess?: () => void;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
   defaultMode = "login",
+  onSuccess,
 }) => {
   const [mode, setMode] = useState<"login" | "signup">(defaultMode);
 
@@ -33,17 +35,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md p-0 bg-transparent border-0">
         <div className="relative">
-          <button
-            onClick={handleClose}
-            className="absolute -top-2 -right-2 z-10 p-1 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <X className="h-4 w-4 text-gray-500" />
-          </button>
-
           {mode === "login" ? (
-            <LoginForm onSwitchToSignup={() => setMode("signup")} />
+            <LoginForm
+              onSwitchToSignup={() => setMode("signup")}
+              onSuccess={onSuccess}
+            />
           ) : (
-            <SignupForm onSwitchToLogin={() => setMode("login")} />
+            <SignupForm
+              onSwitchToLogin={() => setMode("login")}
+              onSuccess={onSuccess}
+            />
           )}
         </div>
       </DialogContent>

@@ -26,9 +26,13 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 interface LoginFormProps {
   onSwitchToSignup: () => void;
+  onSuccess?: () => void;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
+export const LoginForm: React.FC<LoginFormProps> = ({
+  onSwitchToSignup,
+  onSuccess,
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
@@ -47,6 +51,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
 
     try {
       await login(data.email, data.password);
+      onSuccess?.();
     } catch (err: any) {
       setError(
         err.response?.data?.message || "Login failed. Please try again."

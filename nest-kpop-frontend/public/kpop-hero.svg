@@ -1,0 +1,39 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ec4899;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#grad1)" opacity="0.1"/>
+  
+  <!-- Musical notes -->
+  <circle cx="80" cy="60" r="8" fill="url(#grad1)"/>
+  <rect x="76" y="60" width="8" height="40" fill="url(#grad1)"/>
+  <path d="M88 50 Q100 40 110 50 Q100 60 88 50" fill="url(#grad1)"/>
+  
+  <circle cx="320" cy="80" r="6" fill="url(#grad2)"/>
+  <rect x="317" y="80" width="6" height="30" fill="url(#grad2)"/>
+  <path d="M327 70 Q335 60 340 70 Q335 80 327 70" fill="url(#grad2)"/>
+  
+  <!-- Heart -->
+  <path d="M200 100 C200 80, 220 80, 220 100 C220 80, 240 80, 240 100 C240 120, 220 140, 200 120 C180 140, 160 120, 160 100 C160 80, 180 80, 200 100 Z" fill="url(#grad1)" opacity="0.8"/>
+  
+  <!-- Star -->
+  <path d="M300 150 L310 170 L330 170 L315 185 L320 205 L300 190 L280 205 L285 185 L270 170 L290 170 Z" fill="url(#grad2)" opacity="0.8"/>
+  
+  <!-- Sparkles -->
+  <circle cx="100" cy="200" r="3" fill="url(#grad1)"/>
+  <circle cx="300" cy="220" r="2" fill="url(#grad2)"/>
+  <circle cx="150" cy="250" r="4" fill="url(#grad1)"/>
+  
+  <!-- Text -->
+  <text x="200" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="url(#grad1)">K-POP</text>
+  <text x="200" y="210" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="url(#grad2)">MUSIC & COMMUNITY</text>
+</svg>

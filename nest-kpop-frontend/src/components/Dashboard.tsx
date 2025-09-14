@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,7 +25,12 @@ import {
   Mic,
   Headphones,
   Zap,
+  Trash2,
+  Edit,
 } from "lucide-react";
+import { CreatePlaylistModal } from "@/components/playlists/CreatePlaylistModal";
+import { PlaylistDetailModal } from "@/components/playlists/PlaylistDetailModal";
+import { Playlist, playlistsApi, SpotifyTrack, spotifyApi } from "@/lib/api";
 
 interface DashboardProps {
   user: {
@@ -41,27 +46,149 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   const [activeTab, setActiveTab] = useState<
     "discover" | "playlists" | "community"
   >("discover");
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false);
+  const [recentReleases, setRecentReleases] = useState<SpotifyTrack[]>([]);
+  const [isLoadingReleases, setIsLoadingReleases] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(
+    null
+  );
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  const recentPlaylists = [
-    {
-      id: 1,
-      name: "My K-pop Favorites",
-      songCount: 24,
-      color: "from-pink-500 to-purple-500",
-    },
-    {
-      id: 2,
-      name: "BTS Essentials",
-      songCount: 18,
-      color: "from-purple-500 to-blue-500",
-    },
-    {
-      id: 3,
-      name: "Chill K-pop Vibes",
-      songCount: 32,
-      color: "from-blue-500 to-cyan-500",
-    },
-  ];
+  // Load user playlists and recent releases
+  useEffect(() => {
+    loadPlaylists();
+    loadRecentReleases();
+  }, []);
+
+  // Debug: Monitor recentReleases state changes
+  useEffect(() => {
+    console.log("recentReleases state changed:", recentReleases);
+    console.log("recentReleases length:", recentReleases.length);
+  }, [recentReleases]);
+
+  // Handle hash navigation
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash === "#playlists") {
+        setActiveTab("playlists");
+      } else if (hash === "#discover") {
+        setActiveTab("discover");
+      } else if (hash === "#community") {
+        setActiveTab("community");
+      }
+    };
+
+    // Check initial hash
+    handleHashChange();
+
+    // Listen for hash changes
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  const loadPlaylists = async () => {
+    setIsLoadingPlaylists(true);
+    try {
+      const userPlaylists = await playlistsApi.getMyPlaylists();
+      setPlaylists(userPlaylists);
+    } catch (error) {
+      console.error("Failed to load playlists:", error);
+    } finally {
+      setIsLoadingPlaylists(false);
+    }
+  };
+
+  const loadRecentReleases = async () => {
+    setIsLoadingReleases(true);
+    try {
+      console.log("Loading recent releases...");
+      console.log(
+        "API Base URL:",
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3669"
+      );
+      console.log(
+        "User authentication status:",
+        !!localStorage.getItem("access_token")
+      );
+      const releases = await spotifyApi.getRecentKPopReleases(3);
+      console.log("Recent releases loaded:", releases);
+      console.log("Number of releases:", releases.length);
+      console.log("First release structure:", releases[0]);
+      console.log("recentReleases state before set:", recentReleases);
+      setRecentReleases(releases);
+      console.log("recentReleases state after set:", releases);
+    } catch (error) {
+      console.error("Failed to load recent releases:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      console.error("Error status:", error.response?.status);
+    } finally {
+      setIsLoadingReleases(false);
+    }
+  };
+
+  const handlePlaylistCreated = (newPlaylist: Playlist) => {
+    setPlaylists([newPlaylist, ...playlists]);
+    setIsCreateModalOpen(false);
+  };
+
+  const handleViewPlaylist = (playlist: Playlist) => {
+    setSelectedPlaylist(playlist);
+    setIsDetailModalOpen(true);
+  };
+
+  const handlePlaylistUpdated = () => {
+    loadPlaylists(); // Reload playlists to get updated data
+  };
+
+  const handleDeletePlaylist = async (playlistId: string) => {
+    if (!confirm("Are you sure you want to delete this playlist?")) return;
+
+    try {
+      await playlistsApi.deletePlaylist(playlistId);
+      setPlaylists(playlists.filter((p) => p.id !== playlistId));
+    } catch (error) {
+      console.error("Failed to delete playlist:", error);
+    }
+  };
+
+  const getPlaylistGradient = (index: number) => {
+    const gradients = [
+      "from-pink-500 to-purple-500",
+      "from-purple-500 to-blue-500",
+      "from-blue-500 to-cyan-500",
+      "from-cyan-500 to-green-500",
+      "from-green-500 to-yellow-500",
+      "from-yellow-500 to-orange-500",
+      "from-orange-500 to-red-500",
+      "from-red-500 to-pink-500",
+    ];
+    return gradients[index % gradients.length];
+  };
+
+  const formatReleaseDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) return "1 day ago";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+    return `${Math.ceil(diffDays / 30)} months ago`;
+  };
+
+  const formatDuration = (durationMs: number) => {
+    const minutes = Math.floor(durationMs / 60000);
+    const seconds = Math.floor((durationMs % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  const handleSpotifyClick = (spotifyUrl: string) => {
+    window.open(spotifyUrl, "_blank");
+  };
 
   const trendingArtists = [
     {
@@ -151,7 +278,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Start building your perfect K-pop playlist
                 </p>
-                <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600">
+                <Button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   New Playlist
                 </Button>
@@ -266,33 +396,98 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                   <Calendar className="h-6 w-6 mr-2 text-purple-500" />
                   Recent Releases
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[1, 2, 3].map((item) => (
-                    <Card
-                      key={item}
-                      className="bg-white/50 dark:bg-white/5 border-pink-200 dark:border-pink-800 backdrop-blur-sm hover:shadow-lg transition-all duration-300"
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
-                            <Play className="h-6 w-6 text-white" />
+                {isLoadingReleases ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                      <span className="text-lg font-medium text-purple-600 dark:text-purple-400">
+                        Loading recent releases...
+                      </span>
+                    </div>
+                  </div>
+                ) : recentReleases.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Calendar className="h-12 w-12 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">
+                      No recent releases found
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      Check back later for the latest K-pop releases!
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Debug: Loading state:{" "}
+                      {isLoadingReleases ? "true" : "false"}, Releases count:{" "}
+                      {recentReleases.length}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Recent releases data:{" "}
+                      {JSON.stringify(recentReleases, null, 2)}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {recentReleases.map((track) => (
+                      <Card
+                        key={track.id}
+                        className="group bg-white/50 dark:bg-white/5 border-pink-200 dark:border-pink-800 backdrop-blur-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                      >
+                        <CardContent className="p-6">
+                          <div className="flex items-center space-x-4">
+                            <div className="relative">
+                              {track.album.images[0] ? (
+                                <img
+                                  src={track.album.images[0].url}
+                                  alt={track.album.name}
+                                  className="w-16 h-16 rounded-lg object-cover"
+                                />
+                              ) : (
+                                <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
+                                  <Music className="h-8 w-8 text-white" />
+                                </div>
+                              )}
+                              <button
+                                onClick={() =>
+                                  handleSpotifyClick(
+                                    track.external_urls.spotify
+                                  )
+                                }
+                                className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                              >
+                                <Play className="h-6 w-6 text-white" />
+                              </button>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold truncate text-lg">
+                                {track.name}
+                              </h3>
+                              <p className="text-sm text-muted-foreground truncate">
+                                {track.artists
+                                  .map((artist) => artist.name)
+                                  .join(", ")}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatReleaseDate(track.album.release_date)} •{" "}
+                                {formatDuration(track.duration_ms)}
+                              </p>
+                              <button
+                                onClick={() =>
+                                  handleSpotifyClick(
+                                    track.external_urls.spotify
+                                  )
+                                }
+                                className="mt-2 text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+                              >
+                                Open in Spotify →
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold">
-                              New Song Title {item}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">
-                              Artist Name
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              2 days ago
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -304,36 +499,95 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                   <Music className="h-6 w-6 mr-2 text-pink-500" />
                   My Playlists
                 </h2>
-                <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600">
+                <Button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Create New
                 </Button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recentPlaylists.map((playlist) => (
-                  <Card
-                    key={playlist.id}
-                    className="group bg-white/50 dark:bg-white/5 border-pink-200 dark:border-pink-800 backdrop-blur-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              {isLoadingPlaylists ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 border-4 border-pink-500 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-lg font-medium text-pink-600 dark:text-pink-400">
+                      Loading playlists...
+                    </span>
+                  </div>
+                </div>
+              ) : playlists.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-24 h-24 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Music className="h-12 w-12 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">
+                    No playlists yet
+                  </h3>
+                  <p className="text-muted-foreground mb-6">
+                    Create your first playlist and start adding your favorite
+                    K-pop songs!
+                  </p>
+                  <Button
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
                   >
-                    <CardContent className="p-6">
-                      <div
-                        className={`w-full h-24 bg-gradient-to-r ${playlist.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-300`}
-                      >
-                        <Music className="h-8 w-8 text-white" />
-                      </div>
-                      <h3 className="font-bold mb-2">{playlist.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {playlist.songCount} songs
-                      </p>
-                      <Button variant="outline" size="sm" className="w-full">
-                        <Play className="h-4 w-4 mr-2" />
-                        Play
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Your First Playlist
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {playlists.map((playlist, index) => (
+                    <Card
+                      key={playlist.id}
+                      className="group bg-white/50 dark:bg-white/5 border-pink-200 dark:border-pink-800 backdrop-blur-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                    >
+                      <CardContent className="p-6">
+                        <div
+                          className={`w-full h-24 bg-gradient-to-r ${getPlaylistGradient(
+                            index
+                          )} rounded-lg flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-300`}
+                        >
+                          <Music className="h-8 w-8 text-white" />
+                        </div>
+                        <h3 className="font-bold mb-2 truncate">
+                          {playlist.name}
+                        </h3>
+                        {playlist.description && (
+                          <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                            {playlist.description}
+                          </p>
+                        )}
+                        <p className="text-sm text-muted-foreground mb-4">
+                          {playlist.playlistSongs.length} song
+                          {playlist.playlistSongs.length !== 1 ? "s" : ""}
+                        </p>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => handleViewPlaylist(playlist)}
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            View
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeletePlaylist(playlist.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -401,6 +655,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           )}
         </div>
       </div>
+
+      {/* Create Playlist Modal */}
+      <CreatePlaylistModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onPlaylistCreated={handlePlaylistCreated}
+      />
+
+      {/* Playlist Detail Modal */}
+      <PlaylistDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setSelectedPlaylist(null);
+        }}
+        playlist={selectedPlaylist}
+        onPlaylistUpdated={handlePlaylistUpdated}
+      />
     </div>
   );
 };

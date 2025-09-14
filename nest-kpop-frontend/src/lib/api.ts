@@ -64,6 +64,73 @@ export interface AuthResponse {
   user: User;
 }
 
+export interface Song {
+  id: string;
+  spotifyId?: string;
+  title: string;
+  artist: string;
+  album?: string;
+  duration: number;
+  releaseDate: string;
+  genre?: string;
+  imageUrl?: string;
+  audioUrl?: string;
+  previewUrl?: string;
+  spotifyUrl?: string;
+  popularity?: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PlaylistSong {
+  id: string;
+  playlistId: string;
+  songId: string;
+  order: number;
+  addedAt: string;
+  song: Song;
+}
+
+export interface Playlist {
+  id: string;
+  name: string;
+  description?: string;
+  isPublic: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  user: {
+    id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+  };
+  playlistSongs: PlaylistSong[];
+}
+
+export interface CreatePlaylistRequest {
+  name: string;
+  description?: string;
+  isPublic?: boolean;
+}
+
+export interface SpotifyTrack {
+  id: string;
+  name: string;
+  artists: { name: string }[];
+  album: {
+    name: string;
+    images: { url: string; height?: number; width?: number }[];
+    release_date: string;
+  };
+  duration_ms: number;
+  external_urls: { spotify: string };
+  preview_url: string | null;
+  popularity: number;
+}
+
 export const authApi = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await api.post("/auth/login", data);
@@ -87,6 +154,105 @@ export const authApi = {
 
   getStatus: async (): Promise<{ isAuthenticated: boolean; user: User }> => {
     const response = await api.get("/auth/status");
+    return response.data;
+  },
+};
+
+export const playlistsApi = {
+  getMyPlaylists: async (): Promise<Playlist[]> => {
+    const response = await api.get("/playlists/my");
+    return response.data;
+  },
+
+  getAllPlaylists: async (): Promise<Playlist[]> => {
+    const response = await api.get("/playlists");
+    return response.data;
+  },
+
+  getPlaylist: async (id: string): Promise<Playlist> => {
+    const response = await api.get(`/playlists/${id}`);
+    return response.data;
+  },
+
+  createPlaylist: async (data: CreatePlaylistRequest): Promise<Playlist> => {
+    const response = await api.post("/playlists", data);
+    return response.data;
+  },
+
+  updatePlaylist: async (
+    id: string,
+    data: Partial<CreatePlaylistRequest>
+  ): Promise<Playlist> => {
+    const response = await api.patch(`/playlists/${id}`, data);
+    return response.data;
+  },
+
+  deletePlaylist: async (id: string): Promise<void> => {
+    await api.delete(`/playlists/${id}`);
+  },
+
+  addSongToPlaylist: async (
+    playlistId: string,
+    songId: string
+  ): Promise<void> => {
+    await api.post(`/playlists/${playlistId}/songs/${songId}`);
+  },
+
+  removeSongFromPlaylist: async (
+    playlistId: string,
+    songId: string
+  ): Promise<void> => {
+    await api.delete(`/playlists/${playlistId}/songs/${songId}`);
+  },
+
+  addSpotifyTrackToPlaylist: async (
+    playlistId: string,
+    spotifyTrackId: string
+  ): Promise<void> => {
+    await api.post(`/playlists/${playlistId}/spotify-tracks/${spotifyTrackId}`);
+  },
+};
+
+// Create a separate axios instance for Spotify API calls without auth interceptors
+const spotifyApiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+export const spotifyApi = {
+  searchTracks: async (
+    query: string,
+    limit: number = 20
+  ): Promise<SpotifyTrack[]> => {
+    const response = await spotifyApiClient.get(
+      `/spotify/search?q=${encodeURIComponent(query)}&limit=${limit}`
+    );
+    return response.data;
+  },
+
+  searchKPopTracks: async (
+    query: string,
+    limit: number = 20
+  ): Promise<SpotifyTrack[]> => {
+    const response = await spotifyApiClient.get(
+      `/spotify/search/kpop?q=${encodeURIComponent(query)}&limit=${limit}`
+    );
+    return response.data;
+  },
+
+  getPopularKPopTracks: async (limit: number = 20): Promise<SpotifyTrack[]> => {
+    const response = await spotifyApiClient.get(
+      `/spotify/popular/kpop?limit=${limit}`
+    );
+    return response.data;
+  },
+
+  getRecentKPopReleases: async (limit: number = 3): Promise<SpotifyTrack[]> => {
+    const response = await spotifyApiClient.get(
+      `/spotify/recent/kpop?limit=${limit}`
+    );
     return response.data;
   },
 };

@@ -98,7 +98,13 @@ export const UserMenu: React.FC = () => {
             <span>View Profile</span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem className="flex items-center space-x-3 px-4 py-3 hover:bg-pink-50 dark:hover:bg-pink-950/20">
+          <DropdownMenuItem
+            onSelect={() => {
+              // This will be handled by the parent component
+              window.location.hash = "#playlists";
+            }}
+            className="flex items-center space-x-3 px-4 py-3 hover:bg-pink-50 dark:hover:bg-pink-950/20"
+          >
             <Heart className="h-5 w-5 text-pink-500" />
             <span>My Playlists</span>
           </DropdownMenuItem>

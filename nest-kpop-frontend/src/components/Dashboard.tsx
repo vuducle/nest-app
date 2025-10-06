@@ -33,6 +33,7 @@ import { CreatePlaylistModal } from "@/components/playlists/CreatePlaylistModal"
 import { PlaylistDetailModal } from "@/components/playlists/PlaylistDetailModal";
 import { ProfileEditModal } from "@/components/ProfileEditModal";
 import { FriendsList } from "@/components/friends/FriendsList";
+import { UserSearchModal } from "@/components/UserSearchModal";
 import Link from "next/link";
 
 import { SpotifyWebPlayer } from "@/components/ui/SpotifyWebPlayer";
@@ -65,6 +66,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   );
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isUserSearchModalOpen, setIsUserSearchModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User>(user);
 
   // Load user playlists and recent releases
@@ -382,7 +384,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                   Join the K-pop community
                 </p>
                 <Button
-                  disabled={true}
+                  onClick={() => setIsUserSearchModalOpen(true)}
                   variant="outline"
                   className="w-full border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/20 text-xs sm:text-sm"
                 >
@@ -760,6 +762,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
         onProfileUpdated={handleProfileUpdated}
+      />
+
+      {/* User Search Modal */}
+      <UserSearchModal
+        isOpen={isUserSearchModalOpen}
+        onClose={() => setIsUserSearchModalOpen(false)}
       />
     </div>
   );

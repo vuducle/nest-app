@@ -343,3 +343,13 @@ export const spotifyApi = {
     return response.data;
   },
 };
+
+// User search API
+export const usersApi = {
+  searchUsers: async (query: string, limit: number = 10): Promise<User[]> => {
+    const response = await api.get(
+      `/users/search?q=${encodeURIComponent(query)}&limit=${limit}`
+    );
+    return response.data;
+  },
+};

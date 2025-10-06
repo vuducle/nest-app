@@ -273,8 +273,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3 mb-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+              <div className="flex items-center space-x-3">
                 <div className="relative">
                   {currentUser.profileImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -293,20 +293,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                   )}
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                  <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
                     Welcome back, {currentUser.firstName}! 👋
                   </h1>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground text-sm sm:text-base">
                     Ready to discover some amazing K-pop today?
                   </p>
                 </div>
               </div>
-              <div className="flex space-x-2">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                 <Link href={`/${currentUser.username}`}>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/20"
+                    className="w-full sm:w-auto border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/20"
                   >
                     <UserIcon className="h-4 w-4 mr-2" />
                     View Profile
@@ -316,7 +316,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                   variant="outline"
                   size="sm"
                   onClick={() => setIsProfileModalOpen(true)}
-                  className="border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/20"
+                  className="w-full sm:w-auto border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/20"
                 >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Profile
@@ -326,23 +326,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
             <Card className="bg-white/50 dark:bg-white/5 border-pink-200 dark:border-pink-800 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2">
-                  <Plus className="h-5 w-5 text-pink-500" />
+                <CardTitle className="flex items-center space-x-2 text-sm sm:text-base">
+                  <Plus className="h-4 w-4 sm:h-5 sm:w-5 text-pink-500" />
                   <span>Create Playlist</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-4">
                   Start building your perfect K-pop playlist
                 </p>
                 <Button
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                  className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-xs sm:text-sm"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   New Playlist
                 </Button>
               </CardContent>
@@ -350,21 +350,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
             <Card className="bg-white/50 dark:bg-white/5 border-purple-200 dark:border-purple-800 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2">
-                  <Search className="h-5 w-5 text-purple-500" />
+                <CardTitle className="flex items-center space-x-2 text-sm sm:text-base">
+                  <Search className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
                   <span>Discover Music</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-4">
                   Find new K-pop artists and songs
                 </p>
                 <Button
                   disabled={true}
                   variant="outline"
-                  className="w-full border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                  className="w-full border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 text-xs sm:text-sm"
                 >
-                  <Search className="h-4 w-4 mr-2" />
+                  <Search className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Explore
                 </Button>
               </CardContent>
@@ -372,21 +372,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
             <Card className="bg-white/50 dark:bg-white/5 border-pink-200 dark:border-pink-800 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2">
-                  <Users className="h-5 w-5 text-pink-500" />
+                <CardTitle className="flex items-center space-x-2 text-sm sm:text-base">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5 text-pink-500" />
                   <span>Connect</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-4">
                   Join the K-pop community
                 </p>
                 <Button
                   disabled={true}
                   variant="outline"
-                  className="w-full border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/20"
+                  className="w-full border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/20 text-xs sm:text-sm"
                 >
-                  <Users className="h-4 w-4 mr-2" />
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Connect
                 </Button>
               </CardContent>
@@ -399,7 +399,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex space-x-1 mb-8 bg-white/30 dark:bg-white/5 p-1 rounded-lg backdrop-blur-sm">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-1 mb-8 bg-white/30 dark:bg-white/5 p-1 rounded-lg backdrop-blur-sm">
             {[
               { id: "discover", label: "Discover", icon: TrendingUp },
               { id: "playlists", label: "My Playlists", icon: Music },
@@ -413,14 +413,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                     tab.id as "discover" | "playlists" | "friends" | "community"
                   )
                 }
-                className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-md transition-all duration-300 ${
+                className={`flex-1 flex items-center justify-center space-x-2 py-3 px-2 sm:px-4 rounded-md transition-all duration-300 ${
                   activeTab === tab.id
                     ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/20"
                 }`}
               >
-                <tab.icon className="h-4 w-4" />
-                <span className="font-medium">{tab.label}</span>
+                <tab.icon className="h-4 w-4 flex-shrink-0" />
+                <span className="font-medium text-sm sm:text-base truncate">
+                  {tab.label}
+                </span>
               </button>
             ))}
           </div>
@@ -430,11 +432,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             <div className="space-y-8">
               {/* Trending Artists */}
               <div>
-                <h2 className="text-2xl font-bold mb-6 flex items-center">
-                  <TrendingUp className="h-6 w-6 mr-2 text-pink-500" />
+                <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center">
+                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-pink-500" />
                   Trending Artists
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                   {trendingArtists.map((artist, index) => (
                     <Card
                       key={index}
@@ -462,8 +464,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
               {/* Recent Releases */}
               <div>
-                <h2 className="text-2xl font-bold mb-6 flex items-center">
-                  <Calendar className="h-6 w-6 mr-2 text-purple-500" />
+                <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center">
+                  <Calendar className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-purple-500" />
                   Recent Releases
                 </h2>
                 {isLoadingReleases ? (
@@ -488,15 +490,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {recentReleases.map((track) => (
                       <Card
                         key={track.id}
                         className="group bg-white/50 dark:bg-white/5 border-pink-200 dark:border-pink-800 backdrop-blur-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                       >
-                        <CardContent className="p-6">
-                          <div className="flex items-center space-x-4">
-                            <div className="relative">
+                        <CardContent className="p-4 sm:p-6">
+                          <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                            <div className="relative mx-auto sm:mx-0">
                               {track.album.images[0] ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
@@ -520,7 +522,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                                 <Play className="h-6 w-6 text-white" />
                               </button>
                             </div>
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 text-center sm:text-left">
                               <h3 className="font-semibold truncate text-lg">
                                 {track.name}
                               </h3>
@@ -533,7 +535,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                                 {formatReleaseDate(track.album.release_date)} •{" "}
                                 {formatDuration(track.duration_ms)}
                               </p>
-                              <div className="mt-2 flex items-center justify-between">
+                              <div className="mt-2 flex items-center justify-center sm:justify-start">
                                 <button
                                   onClick={() =>
                                     handleSpotifyClick(
@@ -564,14 +566,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
           {activeTab === "playlists" && (
             <div className="space-y-8">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold flex items-center">
-                  <Music className="h-6 w-6 mr-2 text-pink-500" />
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+                <h2 className="text-xl sm:text-2xl font-bold flex items-center">
+                  <Music className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-pink-500" />
                   My Playlists
                 </h2>
                 <Button
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 w-full sm:w-auto text-sm"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Create New
@@ -608,40 +610,40 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                   </Button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {playlists.map((playlist, index) => (
                     <Card
                       key={playlist.id}
                       className="group bg-white/50 dark:bg-white/5 border-pink-200 dark:border-pink-800 backdrop-blur-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                     >
-                      <CardContent className="p-6">
+                      <CardContent className="p-4 sm:p-6">
                         <div
-                          className={`w-full h-24 bg-gradient-to-r ${getPlaylistGradient(
+                          className={`w-full h-20 sm:h-24 bg-gradient-to-r ${getPlaylistGradient(
                             index
                           )} rounded-lg flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-300`}
                         >
-                          <Music className="h-8 w-8 text-white" />
+                          <Music className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                         </div>
-                        <h3 className="font-bold mb-2 truncate">
+                        <h3 className="font-bold mb-2 truncate text-sm sm:text-base">
                           {playlist.name}
                         </h3>
                         {playlist.description && (
-                          <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                          <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-2">
                             {playlist.description}
                           </p>
                         )}
-                        <p className="text-sm text-muted-foreground mb-4">
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-4">
                           {playlist.playlistSongs.length} song
                           {playlist.playlistSongs.length !== 1 ? "s" : ""}
                         </p>
-                        <div className="flex space-x-2">
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            className="flex-1"
+                            className="flex-1 text-xs sm:text-sm"
                             onClick={() => handleViewPlaylist(playlist)}
                           >
-                            <Play className="h-4 w-4 mr-2" />
+                            <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                             View
                           </Button>
                           <Button
@@ -650,7 +652,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                             onClick={() => handleDeletePlaylist(playlist.id)}
                             className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                           </Button>
                         </div>
                       </CardContent>
@@ -663,14 +665,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
           {activeTab === "community" && (
             <div className="space-y-8">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold flex items-center">
-                  <Users className="h-6 w-6 mr-2 text-purple-500" />
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+                <h2 className="text-xl sm:text-2xl font-bold flex items-center">
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-purple-500" />
                   Community Feed
                 </h2>
                 <Button
                   variant="outline"
-                  className="border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                  className="border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 w-full sm:w-auto text-sm"
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   New Post
@@ -683,41 +685,45 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                     key={post.id}
                     className="bg-white/50 dark:bg-white/5 border-pink-200 dark:border-pink-800 backdrop-blur-sm hover:shadow-lg transition-all duration-300"
                   >
-                    <CardContent className="p-6">
-                      <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold text-sm">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex items-start space-x-3 sm:space-x-4">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white font-bold text-xs sm:text-sm">
                             {post.user.charAt(0).toUpperCase()}
                           </span>
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 mb-2">
                             <Link
                               href={`/${post.user}`}
-                              className="font-semibold text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors"
+                              className="font-semibold text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors text-sm sm:text-base"
                             >
                               @{post.user}
                             </Link>
-                            <span className="text-sm text-muted-foreground">
+                            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">
                               •
                             </span>
-                            <span className="text-sm text-muted-foreground">
+                            <span className="text-xs sm:text-sm text-muted-foreground">
                               {post.time}
                             </span>
                           </div>
-                          <p className="mb-3">{post.content}</p>
-                          <div className="flex items-center space-x-4">
+                          <p className="mb-3 text-sm sm:text-base">
+                            {post.content}
+                          </p>
+                          <div className="flex items-center space-x-3 sm:space-x-4">
                             <button className="flex items-center space-x-1 text-muted-foreground hover:text-pink-500 transition-colors">
-                              <Heart className="h-4 w-4" />
-                              <span className="text-sm">{post.likes}</span>
+                              <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="text-xs sm:text-sm">
+                                {post.likes}
+                              </span>
                             </button>
                             <button className="flex items-center space-x-1 text-muted-foreground hover:text-purple-500 transition-colors">
-                              <MessageCircle className="h-4 w-4" />
-                              <span className="text-sm">Reply</span>
+                              <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="text-xs sm:text-sm">Reply</span>
                             </button>
                             <button className="flex items-center space-x-1 text-muted-foreground hover:text-blue-500 transition-colors">
-                              <Share2 className="h-4 w-4" />
-                              <span className="text-sm">Share</span>
+                              <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="text-xs sm:text-sm">Share</span>
                             </button>
                           </div>
                         </div>

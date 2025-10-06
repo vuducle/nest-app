@@ -174,6 +174,11 @@ export const profileApi = {
     return response.data;
   },
 
+  getProfileByUsername: async (username: string): Promise<User> => {
+    const response = await api.get(`/users/username/${username}`);
+    return response.data;
+  },
+
   updateProfile: async (data: UpdateProfileRequest): Promise<User> => {
     const response = await api.patch("/users/profile", data);
     return response.data;

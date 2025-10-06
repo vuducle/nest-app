@@ -112,7 +112,12 @@ export const UserMenu: React.FC = () => {
 
         {/* Menu Items */}
         <div className="py-1">
-          <DropdownMenuItem className="flex items-center space-x-3 px-4 py-3 hover:bg-pink-50 dark:hover:bg-pink-950/20">
+          <DropdownMenuItem
+            className="flex items-center space-x-3 px-4 py-3 hover:bg-pink-50 dark:hover:bg-pink-950/20"
+            onSelect={() => {
+              window.location.href = `/${user.username}`;
+            }}
+          >
             <UserCircle className="h-5 w-5 text-pink-500" />
             <span>View Profile</span>
           </DropdownMenuItem>

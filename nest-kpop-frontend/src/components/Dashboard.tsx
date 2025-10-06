@@ -27,10 +27,12 @@ import {
   Zap,
   Trash2,
   Edit,
+  User as UserIcon,
 } from "lucide-react";
 import { CreatePlaylistModal } from "@/components/playlists/CreatePlaylistModal";
 import { PlaylistDetailModal } from "@/components/playlists/PlaylistDetailModal";
 import { ProfileEditModal } from "@/components/ProfileEditModal";
+import Link from "next/link";
 
 import { SpotifyWebPlayer } from "@/components/ui/SpotifyWebPlayer";
 import { useSpotify } from "@/contexts/SpotifyContext";
@@ -296,15 +298,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                   </p>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsProfileModalOpen(true)}
-                className="border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/20"
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Profile
-              </Button>
+              <div className="flex space-x-2">
+                <Link href={`/${currentUser.username}`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/20"
+                  >
+                    <UserIcon className="h-4 w-4 mr-2" />
+                    View Profile
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsProfileModalOpen(true)}
+                  className="border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/20"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Profile
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -666,7 +680,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-2">
-                            <span className="font-semibold">@{post.user}</span>
+                            <Link
+                              href={`/${post.user}`}
+                              className="font-semibold text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors"
+                            >
+                              @{post.user}
+                            </Link>
                             <span className="text-sm text-muted-foreground">
                               •
                             </span>

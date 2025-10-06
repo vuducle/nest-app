@@ -30,6 +30,13 @@ import {
 } from "lucide-react";
 import { CreatePlaylistModal } from "@/components/playlists/CreatePlaylistModal";
 import { PlaylistDetailModal } from "@/components/playlists/PlaylistDetailModal";
+
+import { SpotifyWebPlayer } from "@/components/ui/SpotifyWebPlayer";
+import { SpotifyAuthTest } from "@/components/ui/SpotifyAuthTest";
+import { SpotifyConfigTest } from "@/components/ui/SpotifyConfigTest";
+import { SpotifyRedirectTest } from "@/components/ui/SpotifyRedirectTest";
+import { SpotifyInsecureFix } from "@/components/ui/SpotifyInsecureFix";
+import { useSpotify } from "@/contexts/SpotifyContext";
 import { Playlist, playlistsApi, SpotifyTrack, spotifyApi } from "@/lib/api";
 
 interface DashboardProps {
@@ -48,6 +55,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   >("discover");
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false);
+  const { isAuthenticated: spotifyConnected, user: spotifyUser } = useSpotify();
   const [recentReleases, setRecentReleases] = useState<SpotifyTrack[]>([]);
   const [isLoadingReleases, setIsLoadingReleases] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -120,7 +128,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
       console.log("recentReleases state before set:", recentReleases);
       setRecentReleases(releases);
       console.log("recentReleases state after set:", releases);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to load recent releases:", error);
       console.error("Error details:", error.response?.data || error.message);
       console.error("Error status:", error.response?.status);
@@ -331,6 +339,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                 </Button>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Spotify Player Section */}
+          <div className="mb-8 space-y-4">
+            <SpotifyInsecureFix />
+            <SpotifyRedirectTest />
+            <SpotifyConfigTest />
+            <SpotifyAuthTest />
+            <SpotifyWebPlayer />
           </div>
 
           {/* Tab Navigation */}

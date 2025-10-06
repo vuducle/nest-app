@@ -11,6 +11,10 @@ import {
 } from "@/components/ui/dialog";
 import { Playlist, playlistsApi } from "@/lib/api";
 import { AddSongsToPlaylistModal } from "./AddSongsToPlaylistModal";
+import { AudioPlayer } from "@/components/ui/AudioPlayer";
+import { PlaylistPlayer } from "@/components/ui/PlaylistPlayer";
+import { SpotifyTrackPlayer } from "@/components/ui/SpotifyTrackPlayer";
+import { SpotifyWebPlayer } from "@/components/ui/SpotifyWebPlayer";
 import {
   Music,
   Play,
@@ -36,6 +40,7 @@ export const PlaylistDetailModal: React.FC<PlaylistDetailModalProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isAddSongsModalOpen, setIsAddSongsModalOpen] = useState(false);
+  const [showPlaylistPlayer, setShowPlaylistPlayer] = useState(false);
   const [currentPlaylist, setCurrentPlaylist] = useState<Playlist | null>(
     playlist
   );
@@ -111,6 +116,17 @@ export const PlaylistDetailModal: React.FC<PlaylistDetailModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Spotify Web Player */}
+          <SpotifyWebPlayer className="mb-4" />
+
+          {/* Playlist Player */}
+          {showPlaylistPlayer && currentPlaylist.playlistSongs.length > 0 && (
+            <PlaylistPlayer
+              songs={currentPlaylist.playlistSongs.map((ps) => ps.song)}
+              className="mb-4"
+            />
+          )}
+
           {/* Playlist Info */}
           <div className="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-950/20 dark:to-purple-950/20 rounded-lg p-6">
             <div className="flex items-center justify-between">
@@ -130,9 +146,13 @@ export const PlaylistDetailModal: React.FC<PlaylistDetailModalProps> = ({
                 )}
               </div>
               <div className="flex space-x-2">
-                <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600">
+                <Button
+                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                  onClick={() => setShowPlaylistPlayer(!showPlaylistPlayer)}
+                  disabled={currentPlaylist.playlistSongs.length === 0}
+                >
                   <Play className="h-4 w-4 mr-2" />
-                  Play All
+                  {showPlaylistPlayer ? "Hide Player" : "Play All"}
                 </Button>
                 <Button
                   variant="outline"
@@ -206,9 +226,19 @@ export const PlaylistDetailModal: React.FC<PlaylistDetailModalProps> = ({
                         </span>
                       </div>
 
-                      <Button size="sm" variant="ghost">
-                        <Play className="h-4 w-4" />
-                      </Button>
+                      {playlistSong.song.spotifyId ? (
+                        <SpotifyTrackPlayer
+                          song={playlistSong.song}
+                          size="sm"
+                        />
+                      ) : (
+                        <AudioPlayer
+                          src={playlistSong.song.previewUrl}
+                          title={playlistSong.song.title}
+                          artist={playlistSong.song.artist}
+                          size="sm"
+                        />
+                      )}
 
                       {playlistSong.song.spotifyUrl && (
                         <Button

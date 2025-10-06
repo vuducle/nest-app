@@ -1,29 +1,23 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   User,
   Music,
   Calendar,
   Edit,
-  Settings,
   Heart,
   Play,
-  Users,
   Mail,
   Phone,
   ArrowLeft,
   UserCheck,
   UserX,
+  UserPlus,
+  UserMinus,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -31,6 +25,7 @@ import {
   User as UserType,
   Playlist,
   playlistsApi,
+  friendsApi,
 } from "@/lib/api";
 import { getImageUrl } from "@/lib/utils";
 import { ProfileEditModal } from "@/components/ProfileEditModal";
@@ -47,17 +42,14 @@ export default function UserProfilePage() {
   const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [friendStatus, setFriendStatus] = useState<{
+    isFriend: boolean;
+    canAddFriend: boolean;
+  } | null>(null);
+  const [isLoadingFriendStatus, setIsLoadingFriendStatus] = useState(false);
 
   const isOwnProfile = isAuthenticated && currentUser?.username === username;
-
-  useEffect(() => {
-    if (username) {
-      loadUserProfile();
-      loadUserPlaylists();
-    }
-  }, [username]);
-
-  const loadUserProfile = async () => {
+  const loadUserProfile = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
@@ -76,9 +68,9 @@ export default function UserProfilePage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isOwnProfile, currentUser, username]);
 
-  const loadUserPlaylists = async () => {
+  const loadUserPlaylists = useCallback(async () => {
     if (isOwnProfile) {
       // For own profile, load user's playlists
       setIsLoadingPlaylists(true);
@@ -104,6 +96,65 @@ export default function UserProfilePage() {
       } finally {
         setIsLoadingPlaylists(false);
       }
+    }
+  }, [isOwnProfile, username]);
+
+  const loadFriendStatus = useCallback(
+    async (userId: string) => {
+      if (!isAuthenticated || isOwnProfile) return;
+
+      setIsLoadingFriendStatus(true);
+      try {
+        const status = await friendsApi.getFriendStatus(userId);
+        setFriendStatus(status);
+      } catch (error) {
+        console.error("Failed to load friend status:", error);
+      } finally {
+        setIsLoadingFriendStatus(false);
+      }
+    },
+    [isAuthenticated, isOwnProfile]
+  );
+
+  useEffect(() => {
+    if (username) {
+      loadUserProfile();
+      loadUserPlaylists();
+    }
+  }, [username, loadUserProfile, loadUserPlaylists]);
+
+  // Separate useEffect for friend status to avoid circular dependency
+  useEffect(() => {
+    if (!isOwnProfile && isAuthenticated && profileUser) {
+      loadFriendStatus(profileUser.id);
+    }
+  }, [profileUser?.id, isOwnProfile, isAuthenticated, loadFriendStatus]);
+
+  const handleAddFriend = async () => {
+    if (!profileUser) return;
+
+    setIsLoadingFriendStatus(true);
+    try {
+      await friendsApi.addFriend(profileUser.id);
+      setFriendStatus({ isFriend: true, canAddFriend: false });
+    } catch (error) {
+      console.error("Failed to add friend:", error);
+    } finally {
+      setIsLoadingFriendStatus(false);
+    }
+  };
+
+  const handleRemoveFriend = async () => {
+    if (!profileUser) return;
+
+    setIsLoadingFriendStatus(true);
+    try {
+      await friendsApi.removeFriend(profileUser.id);
+      setFriendStatus({ isFriend: false, canAddFriend: true });
+    } catch (error) {
+      console.error("Failed to remove friend:", error);
+    } finally {
+      setIsLoadingFriendStatus(false);
     }
   };
 
@@ -156,7 +207,7 @@ export default function UserProfilePage() {
             User Not Found
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            The user "{username}" could not be found.
+            The user &quot;{username}&quot; could not be found.
           </p>
           <Link href="/">
             <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600">
@@ -219,9 +270,17 @@ export default function UserProfilePage() {
                       <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-2">
                         {profileUser.firstName} {profileUser.lastName}
                       </h1>
-                      <p className="text-xl text-muted-foreground mb-2">
-                        @{profileUser.username}
-                      </p>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <p className="text-xl text-muted-foreground">
+                          @{profileUser.username}
+                        </p>
+                        {friendStatus?.isFriend && (
+                          <div className="flex items-center space-x-1 text-sm bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-2 py-1 rounded-full">
+                            <Heart className="h-3 w-3" />
+                            <span>Friends</span>
+                          </div>
+                        )}
+                      </div>
                       <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                         <div className="flex items-center space-x-1">
                           <Calendar className="h-4 w-4" />
@@ -239,15 +298,47 @@ export default function UserProfilePage() {
                       </div>
                     </div>
 
-                    {isOwnProfile && (
-                      <Button
-                        onClick={() => setIsProfileModalOpen(true)}
-                        className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Profile
-                      </Button>
-                    )}
+                    <div className="flex space-x-2">
+                      {isOwnProfile ? (
+                        <Button
+                          onClick={() => setIsProfileModalOpen(true)}
+                          className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit Profile
+                        </Button>
+                      ) : (
+                        isAuthenticated &&
+                        friendStatus && (
+                          <div className="flex space-x-2">
+                            {friendStatus.isFriend ? (
+                              <Button
+                                onClick={handleRemoveFriend}
+                                disabled={isLoadingFriendStatus}
+                                variant="outline"
+                                className="border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20"
+                              >
+                                <UserMinus className="h-4 w-4 mr-2" />
+                                {isLoadingFriendStatus
+                                  ? "Removing..."
+                                  : "Remove Friend"}
+                              </Button>
+                            ) : friendStatus.canAddFriend ? (
+                              <Button
+                                onClick={handleAddFriend}
+                                disabled={isLoadingFriendStatus}
+                                className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                              >
+                                <UserPlus className="h-4 w-4 mr-2" />
+                                {isLoadingFriendStatus
+                                  ? "Adding..."
+                                  : "Add Friend"}
+                              </Button>
+                            ) : null}
+                          </div>
+                        )
+                      )}
+                    </div>
                   </div>
 
                   {/* Contact Info */}
@@ -312,7 +403,7 @@ export default function UserProfilePage() {
                 <p className="text-muted-foreground mb-6">
                   {isOwnProfile
                     ? "Create your first playlist and start adding your favorite K-pop songs!"
-                    : "This user hasn't shared any public playlists yet."}
+                    : "This user hasn&apos;t shared any public playlists yet."}
                 </p>
                 {isOwnProfile && (
                   <Link href="/">

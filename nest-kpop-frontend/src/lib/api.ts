@@ -49,6 +49,18 @@ export interface User {
   updatedAt: string;
 }
 
+export interface FriendUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  profileImage: string | null;
+  createdAt: string;
+  _count: {
+    playlists: number;
+  };
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -193,6 +205,42 @@ export const profileApi = {
         "Content-Type": "multipart/form-data",
       },
     });
+    return response.data;
+  },
+};
+
+export const friendsApi = {
+  getFriends: async (): Promise<FriendUser[]> => {
+    const response = await api.get("/friends");
+    return response.data;
+  },
+
+  addFriend: async (friendId: string): Promise<User> => {
+    const response = await api.post(`/users/friends/${friendId}`);
+    return response.data;
+  },
+
+  removeFriend: async (friendId: string): Promise<User> => {
+    const response = await api.delete(`/users/friends/${friendId}`);
+    return response.data;
+  },
+
+  getFriendStatus: async (
+    targetUserId: string
+  ): Promise<{
+    isFriend: boolean;
+    canAddFriend: boolean;
+  }> => {
+    const response = await api.get(`/users/friends/status/${targetUserId}`);
+    return response.data;
+  },
+
+  getFriendRecommendations: async (
+    limit: number = 10
+  ): Promise<FriendUser[]> => {
+    const response = await api.get(
+      `/users/friends/recommendations?limit=${limit}`
+    );
     return response.data;
   },
 };

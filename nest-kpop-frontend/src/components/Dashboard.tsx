@@ -32,6 +32,7 @@ import {
 import { CreatePlaylistModal } from "@/components/playlists/CreatePlaylistModal";
 import { PlaylistDetailModal } from "@/components/playlists/PlaylistDetailModal";
 import { ProfileEditModal } from "@/components/ProfileEditModal";
+import { FriendsList } from "@/components/friends/FriendsList";
 import Link from "next/link";
 
 import { SpotifyWebPlayer } from "@/components/ui/SpotifyWebPlayer";
@@ -51,7 +52,7 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   const [activeTab, setActiveTab] = useState<
-    "discover" | "playlists" | "community"
+    "discover" | "playlists" | "friends" | "community"
   >("discover");
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false);
@@ -86,6 +87,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         setActiveTab("playlists");
       } else if (hash === "#discover") {
         setActiveTab("discover");
+      } else if (hash === "#friends") {
+        setActiveTab("friends");
       } else if (hash === "#community") {
         setActiveTab("community");
       }
@@ -400,12 +403,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             {[
               { id: "discover", label: "Discover", icon: TrendingUp },
               { id: "playlists", label: "My Playlists", icon: Music },
+              { id: "friends", label: "Friends", icon: Users },
               { id: "community", label: "Community", icon: Users },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() =>
-                  setActiveTab(tab.id as "discover" | "playlists" | "community")
+                  setActiveTab(
+                    tab.id as "discover" | "playlists" | "friends" | "community"
+                  )
                 }
                 className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-md transition-all duration-300 ${
                   activeTab === tab.id
@@ -547,6 +553,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {activeTab === "friends" && (
+            <div className="space-y-8">
+              <FriendsList limit={8} showRecommendations={true} />
             </div>
           )}
 

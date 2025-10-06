@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { getImageUrl } from "@/lib/utils";
 import {
   User,
   LogOut,
@@ -42,12 +43,21 @@ export const UserMenu: React.FC = () => {
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center space-x-3 p-2 rounded-full hover:bg-pink-50 dark:hover:bg-pink-950/20 transition-colors">
         <div className="relative">
-          <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-sm">
-              {user.firstName.charAt(0)}
-              {user.lastName.charAt(0)}
-            </span>
-          </div>
+          {user.profileImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={getImageUrl(user.profileImage) || ""}
+              alt="Profile"
+              className="w-10 h-10 rounded-full object-cover border-2 border-pink-200"
+            />
+          ) : (
+            <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">
+                {user.firstName.charAt(0)}
+                {user.lastName.charAt(0)}
+              </span>
+            </div>
+          )}
           <Sparkles className="h-3 w-3 text-yellow-500 absolute -top-1 -right-1" />
         </div>
         <div className="hidden md:block text-left">
@@ -65,12 +75,21 @@ export const UserMenu: React.FC = () => {
         <div className="p-4 border-b border-pink-100 dark:border-pink-800">
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">
-                  {user.firstName.charAt(0)}
-                  {user.lastName.charAt(0)}
-                </span>
-              </div>
+              {user.profileImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={getImageUrl(user.profileImage) || ""}
+                  alt="Profile"
+                  className="w-12 h-12 rounded-full object-cover border-2 border-pink-200"
+                />
+              ) : (
+                <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold">
+                    {user.firstName.charAt(0)}
+                    {user.lastName.charAt(0)}
+                  </span>
+                </div>
+              )}
               <Sparkles className="h-4 w-4 text-yellow-500 absolute -top-1 -right-1" />
             </div>
             <div className="flex-1 min-w-0">

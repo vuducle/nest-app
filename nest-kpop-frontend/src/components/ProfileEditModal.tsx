@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { User, Camera, Upload, X, Save, AlertCircle } from "lucide-react";
 import { profileApi, User as UserType, UpdateProfileRequest } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { getImageUrl } from "@/lib/utils";
 
 interface ProfileEditModalProps {
   isOpen: boolean;
@@ -150,14 +151,6 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     setSuccess(null);
     setPreviewImage(null);
     onClose();
-  };
-
-  const getImageUrl = (imagePath?: string) => {
-    if (!imagePath) return null;
-    if (imagePath.startsWith("http")) return imagePath;
-    return `${
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3669"
-    }${imagePath}`;
   };
 
   return (

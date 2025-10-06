@@ -41,6 +41,7 @@ import {
   spotifyApi,
   User,
 } from "@/lib/api";
+import { getImageUrl } from "@/lib/utils";
 
 interface DashboardProps {
   user: User;
@@ -172,14 +173,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   const handleProfileUpdated = (updatedUser: User) => {
     setCurrentUser(updatedUser);
     setIsProfileModalOpen(false);
-  };
-
-  const getImageUrl = (imagePath?: string) => {
-    if (!imagePath) return null;
-    if (imagePath.startsWith("http")) return imagePath;
-    return `${
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3669"
-    }${imagePath}`;
   };
 
   const getPlaylistGradient = (index: number) => {

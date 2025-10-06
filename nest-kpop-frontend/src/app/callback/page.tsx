@@ -7,68 +7,17 @@ import { Loader2 } from "lucide-react";
 export default function SpotifyCallback() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
-  );
+  const [status, setStatus] = useState<
+    "loading" | "success" | "error" | "placeholder"
+  >("placeholder");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handleCallback = async () => {
-      const code = searchParams.get("code");
-      const error = searchParams.get("error");
-
-      if (error) {
-        setError(`Spotify authorization failed: ${error}`);
-        setStatus("error");
-        return;
-      }
-
-      if (!code) {
-        setError("No authorization code received");
-        setStatus("error");
-        return;
-      }
-
-      try {
-        // Exchange code for access token
-        const API_BASE_URL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3669";
-        const response = await fetch(`${API_BASE_URL}/spotify/token`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ code }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to exchange code for token");
-        }
-
-        const data = await response.json();
-
-        // Store tokens
-        localStorage.setItem("spotify_access_token", data.access_token);
-        localStorage.setItem("spotify_refresh_token", data.refresh_token);
-
-        // Calculate expiry time (Spotify tokens expire in 1 hour)
-        const expiry = new Date().getTime() + data.expires_in * 1000;
-        localStorage.setItem("spotify_token_expiry", expiry.toString());
-
-        setStatus("success");
-
-        // Redirect to dashboard after a short delay
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 2000);
-      } catch (err) {
-        console.error("Error during Spotify callback:", err);
-        setError(err instanceof Error ? err.message : "Unknown error occurred");
-        setStatus("error");
-      }
-    };
-
-    handleCallback();
+    // Placeholder: Spotify OAuth callback is disabled for now
+    console.warn(
+      "Spotify OAuth callback handling is disabled. This will be implemented later."
+    );
+    setStatus("placeholder");
   }, [searchParams, router]);
 
   return (
@@ -84,6 +33,39 @@ export default function SpotifyCallback() {
               <p className="text-muted-foreground">
                 Please wait while we complete your Spotify authorization.
               </p>
+            </>
+          )}
+
+          {status === "placeholder" && (
+            <>
+              <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-6 h-6 text-yellow-700 dark:text-yellow-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M12 18.5a6.5 6.5 0 110-13 6.5 6.5 0 010 13z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold mb-2 text-yellow-700 dark:text-yellow-300">
+                Spotify connection is disabled
+              </h2>
+              <p className="text-muted-foreground mb-4 text-sm">
+                The Spotify authorization flow will be implemented later. This
+                page is a placeholder.
+              </p>
+              <button
+                onClick={() => router.push("/dashboard")}
+                className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
+              >
+                Go to Dashboard
+              </button>
             </>
           )}
 

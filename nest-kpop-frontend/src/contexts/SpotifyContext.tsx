@@ -104,15 +104,8 @@ export const SpotifyProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const login = () => {
-    const authUrl =
-      `https://accounts.spotify.com/authorize?` +
-      `client_id=${SPOTIFY_CLIENT_ID}&` +
-      `response_type=code&` +
-      `redirect_uri=${encodeURIComponent(SPOTIFY_REDIRECT_URI)}&` +
-      `scope=${encodeURIComponent(SPOTIFY_SCOPES)}&` +
-      `show_dialog=true`;
-
-    window.location.href = authUrl;
+    // Placeholder: Spotify login is disabled for now
+    console.warn("Spotify login is disabled. This will be implemented later.");
   };
 
   const logout = () => {

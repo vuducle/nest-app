@@ -42,6 +42,9 @@ export interface User {
   firstName: string;
   lastName: string;
   username: string;
+  profileImage?: string;
+  phoneNumber?: string;
+  usernameChangeCount: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -131,6 +134,13 @@ export interface SpotifyTrack {
   popularity: number;
 }
 
+export interface UpdateProfileRequest {
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  phoneNumber?: string;
+}
+
 export const authApi = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await api.post("/auth/login", data);
@@ -154,6 +164,30 @@ export const authApi = {
 
   getStatus: async (): Promise<{ isAuthenticated: boolean; user: User }> => {
     const response = await api.get("/auth/status");
+    return response.data;
+  },
+};
+
+export const profileApi = {
+  getProfile: async (): Promise<User> => {
+    const response = await api.get("/users/profile");
+    return response.data;
+  },
+
+  updateProfile: async (data: UpdateProfileRequest): Promise<User> => {
+    const response = await api.patch("/users/profile", data);
+    return response.data;
+  },
+
+  uploadProfileImage: async (file: File): Promise<User> => {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await api.post("/users/profile/upload-image", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   },
 };

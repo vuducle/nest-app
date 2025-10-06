@@ -30,23 +30,20 @@ import {
 } from "lucide-react";
 import { CreatePlaylistModal } from "@/components/playlists/CreatePlaylistModal";
 import { PlaylistDetailModal } from "@/components/playlists/PlaylistDetailModal";
+import { ProfileEditModal } from "@/components/ProfileEditModal";
 
 import { SpotifyWebPlayer } from "@/components/ui/SpotifyWebPlayer";
-import { SpotifyAuthTest } from "@/components/ui/SpotifyAuthTest";
-import { SpotifyConfigTest } from "@/components/ui/SpotifyConfigTest";
-import { SpotifyRedirectTest } from "@/components/ui/SpotifyRedirectTest";
-import { SpotifyInsecureFix } from "@/components/ui/SpotifyInsecureFix";
 import { useSpotify } from "@/contexts/SpotifyContext";
-import { Playlist, playlistsApi, SpotifyTrack, spotifyApi } from "@/lib/api";
+import {
+  Playlist,
+  playlistsApi,
+  SpotifyTrack,
+  spotifyApi,
+  User,
+} from "@/lib/api";
 
 interface DashboardProps {
-  user: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    username: string;
-  };
+  user: User;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
@@ -63,6 +60,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     null
   );
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User>(user);
 
   // Load user playlists and recent releases
   useEffect(() => {
@@ -127,11 +126,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
       console.log("First release structure:", releases[0]);
       console.log("recentReleases state before set:", recentReleases);
       setRecentReleases(releases);
-      console.log("recentReleases state after set:", releases);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to load recent releases:", error);
-      console.error("Error details:", error.response?.data || error.message);
-      console.error("Error status:", error.response?.status);
+      const errorDetails =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { data?: unknown; status?: number } })
+              .response?.data || error.message
+          : "Unknown error";
+      const errorStatus =
+        error instanceof Error && "response" in error
+          ? (error as { response?: { status?: number } }).response?.status
+          : undefined;
+      console.error("Error details:", errorDetails);
+      console.error("Error status:", errorStatus);
     } finally {
       setIsLoadingReleases(false);
     }
@@ -160,6 +167,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     } catch (error) {
       console.error("Failed to delete playlist:", error);
     }
+  };
+
+  const handleProfileUpdated = (updatedUser: User) => {
+    setCurrentUser(updatedUser);
+    setIsProfileModalOpen(false);
+  };
+
+  const getImageUrl = (imagePath?: string) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith("http")) return imagePath;
+    return `${
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3669"
+    }${imagePath}`;
   };
 
   const getPlaylistGradient = (index: number) => {
@@ -255,21 +275,43 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-lg">
-                  {user.firstName.charAt(0)}
-                  {user.lastName.charAt(0)}
-                </span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="relative">
+                  {currentUser.profileImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={getImageUrl(currentUser.profileImage) || ""}
+                      alt="Profile"
+                      className="w-12 h-12 rounded-full object-cover border-2 border-pink-200"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-lg">
+                        {currentUser.firstName.charAt(0)}
+                        {currentUser.lastName.charAt(0)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                    Welcome back, {currentUser.firstName}! 👋
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Ready to discover some amazing K-pop today?
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                  Welcome back, {user.firstName}! 👋
-                </h1>
-                <p className="text-muted-foreground">
-                  Ready to discover some amazing K-pop today?
-                </p>
-              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsProfileModalOpen(true)}
+                className="border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/20"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Profile
+              </Button>
             </div>
           </div>
 
@@ -341,12 +383,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             </Card>
           </div>
 
-          {/* Spotify Player Section */}
-          <div className="mb-8 space-y-4">
-            <SpotifyInsecureFix />
-            <SpotifyRedirectTest />
-            <SpotifyConfigTest />
-            <SpotifyAuthTest />
+          {/* Spotify Player */}
+          <div className="mb-8">
             <SpotifyWebPlayer />
           </div>
 
@@ -359,7 +397,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() =>
+                  setActiveTab(tab.id as "discover" | "playlists" | "community")
+                }
                 className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-md transition-all duration-300 ${
                   activeTab === tab.id
                     ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg"
@@ -433,15 +473,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                     <p className="text-muted-foreground mb-4">
                       Check back later for the latest K-pop releases!
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      Debug: Loading state:{" "}
-                      {isLoadingReleases ? "true" : "false"}, Releases count:{" "}
-                      {recentReleases.length}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Recent releases data:{" "}
-                      {JSON.stringify(recentReleases, null, 2)}
-                    </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -454,6 +485,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                           <div className="flex items-center space-x-4">
                             <div className="relative">
                               {track.album.images[0] ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                   src={track.album.images[0].url}
                                   alt={track.album.name}
@@ -488,16 +520,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                                 {formatReleaseDate(track.album.release_date)} •{" "}
                                 {formatDuration(track.duration_ms)}
                               </p>
-                              <button
-                                onClick={() =>
-                                  handleSpotifyClick(
-                                    track.external_urls.spotify
-                                  )
-                                }
-                                className="mt-2 text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
-                              >
-                                Open in Spotify →
-                              </button>
+                              <div className="mt-2 flex items-center justify-between">
+                                <button
+                                  onClick={() =>
+                                    handleSpotifyClick(
+                                      track.external_urls.spotify
+                                    )
+                                  }
+                                  className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+                                >
+                                  Open in Spotify →
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </CardContent>
@@ -689,6 +723,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         }}
         playlist={selectedPlaylist}
         onPlaylistUpdated={handlePlaylistUpdated}
+      />
+
+      {/* Profile Edit Modal */}
+      <ProfileEditModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        onProfileUpdated={handleProfileUpdated}
       />
     </div>
   );

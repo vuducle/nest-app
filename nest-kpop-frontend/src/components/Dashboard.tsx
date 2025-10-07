@@ -34,6 +34,7 @@ import { PlaylistDetailModal } from "@/components/playlists/PlaylistDetailModal"
 import { ProfileEditModal } from "@/components/ProfileEditModal";
 import { FriendsList } from "@/components/friends/FriendsList";
 import { UserSearchModal } from "@/components/UserSearchModal";
+import { OptimizedPostsFeed } from "@/components/posts/OptimizedPostsFeed";
 import Link from "next/link";
 
 import { SpotifyWebPlayer } from "@/components/ui/SpotifyWebPlayer";
@@ -242,30 +243,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
       followers: "1.3M",
       color: "from-purple-400 to-pink-400",
       icon: Mic,
-    },
-  ];
-
-  const communityPosts = [
-    {
-      id: 1,
-      user: "kpop_fan_123",
-      content: "Just discovered this amazing new song by NewJeans! 🎵",
-      likes: 42,
-      time: "2h ago",
-    },
-    {
-      id: 2,
-      user: "music_lover",
-      content: "BTS concert was absolutely incredible last night! 💜",
-      likes: 89,
-      time: "4h ago",
-    },
-    {
-      id: 3,
-      user: "stan_account",
-      content: "Creating the perfect K-pop workout playlist 💪",
-      likes: 23,
-      time: "6h ago",
     },
   ];
 
@@ -672,68 +649,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                   <Users className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-purple-500" />
                   Community Feed
                 </h2>
-                <Button
-                  variant="outline"
-                  className="border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 w-full sm:w-auto text-sm"
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  New Post
-                </Button>
               </div>
 
-              <div className="space-y-6">
-                {communityPosts.map((post) => (
-                  <Card
-                    key={post.id}
-                    className="bg-white/50 dark:bg-white/5 border-pink-200 dark:border-pink-800 backdrop-blur-sm hover:shadow-lg transition-all duration-300"
-                  >
-                    <CardContent className="p-4 sm:p-6">
-                      <div className="flex items-start space-x-3 sm:space-x-4">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-white font-bold text-xs sm:text-sm">
-                            {post.user.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 mb-2">
-                            <Link
-                              href={`/${post.user}`}
-                              className="font-semibold text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors text-sm sm:text-base"
-                            >
-                              @{post.user}
-                            </Link>
-                            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">
-                              •
-                            </span>
-                            <span className="text-xs sm:text-sm text-muted-foreground">
-                              {post.time}
-                            </span>
-                          </div>
-                          <p className="mb-3 text-sm sm:text-base">
-                            {post.content}
-                          </p>
-                          <div className="flex items-center space-x-3 sm:space-x-4">
-                            <button className="flex items-center space-x-1 text-muted-foreground hover:text-pink-500 transition-colors">
-                              <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
-                              <span className="text-xs sm:text-sm">
-                                {post.likes}
-                              </span>
-                            </button>
-                            <button className="flex items-center space-x-1 text-muted-foreground hover:text-purple-500 transition-colors">
-                              <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-                              <span className="text-xs sm:text-sm">Reply</span>
-                            </button>
-                            <button className="flex items-center space-x-1 text-muted-foreground hover:text-blue-500 transition-colors">
-                              <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                              <span className="text-xs sm:text-sm">Share</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <OptimizedPostsFeed />
             </div>
           )}
         </div>

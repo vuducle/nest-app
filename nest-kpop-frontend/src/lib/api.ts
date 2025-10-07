@@ -49,6 +49,50 @@ export interface User {
   updatedAt: string;
 }
 
+export interface Post {
+  id: string;
+  content: string;
+  mediaUrl?: string;
+  mediaType?: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    profileImage?: string;
+  };
+  _count: {
+    likes: number;
+    comments: number;
+  };
+}
+
+export interface Comment {
+  id: string;
+  content: string;
+  postId: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    profileImage?: string;
+  };
+}
+
+export interface Like {
+  id: string;
+  postId: string;
+  userId: string;
+  createdAt: string;
+}
+
 export interface FriendUser {
   id: string;
   firstName: string;
@@ -350,6 +394,73 @@ export const usersApi = {
     const response = await api.get(
       `/users/search?q=${encodeURIComponent(query)}&limit=${limit}`
     );
+    return response.data;
+  },
+};
+
+// Posts API
+export const postsApi = {
+  getPosts: async (page: number = 1, limit: number = 20) => {
+    const response = await api.get(`/posts?page=${page}&limit=${limit}`);
+    return response.data;
+  },
+
+  getPostById: async (id: string) => {
+    const response = await api.get(`/posts/${id}`);
+    return response.data;
+  },
+
+  createPost: async (postData: {
+    content: string;
+    mediaUrl?: string;
+    mediaType?: string;
+  }) => {
+    const response = await api.post("/posts", postData);
+    return response.data;
+  },
+
+  likePost: async (postId: string) => {
+    const response = await api.post(`/posts/${postId}/like`);
+    return response.data;
+  },
+
+  createComment: async (postId: string, content: string) => {
+    const response = await api.post(`/posts/${postId}/comments`, { content });
+    return response.data;
+  },
+
+  getComments: async (postId: string, page: number = 1, limit: number = 20) => {
+    const response = await api.get(
+      `/posts/${postId}/comments?page=${page}&limit=${limit}`
+    );
+    return response.data;
+  },
+
+  deletePost: async (postId: string) => {
+    const response = await api.delete(`/posts/${postId}`);
+    return response.data;
+  },
+
+  getUserPosts: async (
+    userId: string,
+    page: number = 1,
+    limit: number = 20
+  ) => {
+    const response = await api.get(
+      `/posts/user/${userId}?page=${page}&limit=${limit}`
+    );
+    return response.data;
+  },
+
+  uploadMedia: async (file: File) => {
+    const formData = new FormData();
+    formData.append("media", file);
+
+    const response = await api.post("/posts/upload-media", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   },
 };
